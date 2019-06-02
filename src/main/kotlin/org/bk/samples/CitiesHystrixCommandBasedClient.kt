@@ -70,5 +70,4 @@ class CitiesHystrixCommand(
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(CitiesHystrixCommand::class.java)
     }
-
 }
