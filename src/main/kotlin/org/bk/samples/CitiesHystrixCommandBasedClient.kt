@@ -18,46 +18,51 @@ import rx.schedulers.Schedulers
 import java.net.URI
 
 class CitiesHystrixCommandBasedClient(
-        private val webClientBuilder: WebClient.Builder,
-        private val citiesBaseUrl: String
+    private val webClientBuilder: WebClient.Builder,
+    private val citiesBaseUrl: String
 ) {
     fun getCities(): Flux<City> {
         val citiesObservable: Observable<City> = CitiesHystrixCommand(webClientBuilder, citiesBaseUrl)
-                .observe()
-                .subscribeOn(Schedulers.io())
+            .observe()
+            .subscribeOn(Schedulers.io())
 
         return Flux
-                .from(RxReactiveStreams
-                        .toPublisher(citiesObservable))
+            .from(
+                RxReactiveStreams
+                    .toPublisher(citiesObservable)
+            )
     }
 }
 
 class CitiesHystrixCommand(
-        private val webClientBuilder: WebClient.Builder,
-        private val citiesBaseUrl: String
+    private val webClientBuilder: WebClient.Builder,
+    private val citiesBaseUrl: String
 ) : HystrixObservableCommand<City>(
-        HystrixObservableCommand.Setter
-                .withGroupKey(HystrixCommandGroupKey.Factory.asKey("cities-service"))
-                .andCommandKey(HystrixCommandKey.Factory.asKey("cities-service"))
-                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-                        .withExecutionTimeoutInMilliseconds(4000))) {
+    Setter
+        .withGroupKey(HystrixCommandGroupKey.Factory.asKey("cities-service"))
+        .andCommandKey(HystrixCommandKey.Factory.asKey("cities-service"))
+        .andCommandPropertiesDefaults(
+            HystrixCommandProperties.Setter()
+                .withExecutionTimeoutInMilliseconds(4000)
+        )
+) {
     override fun construct(): Observable<City> {
         val buildUri: URI = UriComponentsBuilder
-                .fromUriString(citiesBaseUrl)
-                .path("/cities")
-                .build()
-                .encode()
-                .toUri()
+            .fromUriString(citiesBaseUrl)
+            .path("/cities")
+            .build()
+            .encode()
+            .toUri()
 
         val webClient: WebClient = this.webClientBuilder.build()
 
         val result: Flux<City> = webClient.get()
-                .uri(buildUri)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .flatMapMany { clientResponse ->
-                    clientResponse.bodyToFlux<City>()
-                }
+            .uri(buildUri)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .flatMapMany { clientResponse ->
+                clientResponse.bodyToFlux<City>()
+            }
 
         return RxReactiveStreams.toObservable(result)
     }

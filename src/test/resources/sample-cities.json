@@ -1,20 +1,23 @@
 [
-  {
-    "country": "USA",
-    "id": 1,
-    "name": "Portland",
-    "pop": 1600000
-  },
-  {
-    "country": "USA",
-    "id": 2,
-    "name": "Seattle",
-    "pop": 3200000
-  },
-  {
-    "country": "USA",
-    "id": 3,
-    "name": "SFO",
-    "pop": 6400000
-  }
+    {
+        "country": "USA",
+        "id": 1,
+        "name": "Portland",
+        "pop": 1600000,
+        "creationDate": "2000-01-01T06:39:24Z"
+    },
+    {
+        "country": "USA",
+        "id": 2,
+        "name": "Seattle",
+        "pop": 3200000,
+        "creationDate": "2000-01-01T06:39:24Z"
+    },
+    {
+        "country": "USA",
+        "id": 3,
+        "name": "SFO",
+        "pop": 6400000,
+        "creationDate": "2000-01-01T06:39:24Z"
+    }
 ]

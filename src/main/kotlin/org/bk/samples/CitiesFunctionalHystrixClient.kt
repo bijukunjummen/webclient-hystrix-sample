@@ -14,46 +14,46 @@ import rx.schedulers.Schedulers
 import java.net.URI
 
 class CitiesFunctionalHystrixClient(
-        private val webClientBuilder: WebClient.Builder,
-        private val citiesBaseUrl: String
+    private val webClientBuilder: WebClient.Builder,
+    private val citiesBaseUrl: String
 ) {
     fun getCities(): Flux<City> {
         return HystrixCommands
-                .from(callCitiesService())
-                .commandName("cities-service")
-                .groupName("cities-service")
-                .commandProperties(
-                        HystrixCommandProperties.Setter()
-                                .withExecutionTimeoutInMilliseconds(1000)
-                )
-                .toObservable { obs ->
-                    obs.observe()
-                            .subscribeOn(Schedulers.io())
-                }
-                .fallback { t: Throwable ->
-                    LOGGER.error(t.message, t)
-                    Flux.empty()
-                }
-                .toFlux()
+            .from(callCitiesService())
+            .commandName("cities-service")
+            .groupName("cities-service")
+            .commandProperties(
+                HystrixCommandProperties.Setter()
+                    .withExecutionTimeoutInMilliseconds(1000)
+            )
+            .toObservable { obs ->
+                obs.observe()
+                    .subscribeOn(Schedulers.io())
+            }
+            .fallback { t: Throwable ->
+                LOGGER.error(t.message, t)
+                Flux.empty()
+            }
+            .toFlux()
     }
 
     fun callCitiesService(): Flux<City> {
         val buildUri: URI = UriComponentsBuilder
-                .fromUriString(citiesBaseUrl)
-                .path("/cities")
-                .build()
-                .encode()
-                .toUri()
+            .fromUriString(citiesBaseUrl)
+            .path("/cities")
+            .build()
+            .encode()
+            .toUri()
 
         val webClient: WebClient = this.webClientBuilder.build()
 
         return webClient.get()
-                .uri(buildUri)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .flatMapMany { clientResponse ->
-                    clientResponse.bodyToFlux<City>()
-                }
+            .uri(buildUri)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .flatMapMany { clientResponse ->
+                clientResponse.bodyToFlux<City>()
+            }
     }
 
     companion object {
